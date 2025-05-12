@@ -6,149 +6,137 @@ using UnityEngine.UI;
 public class ButtonManager : MonoBehaviour
 {
     [Header("UI Elements")]
-    [SerializeField] private List<GameObject> buttons = new List<GameObject>(); // buttons in top-down order
-    [SerializeField] private GameObject sliderPanelPrefab; // assign dropdown prefab here
-    private List<int> buttonStatus = new List<int>(); //0 = closed, 1 = open
+    [SerializeField] private List<GameObject> buttons = new(); // Top-down ordered buttons
+    [SerializeField] private GameObject sliderPanelPrefab;
 
     [Header("Settings")]
     [SerializeField] private float dropdownHeight = 300f;
-    [SerializeField] private float animationRate = 0.3f;
+    [SerializeField] private float animationDuration = 0.3f;
 
+    private List<int> buttonStates = new(); // 0 = closed, 1 = open
+    private GameObject currentPanelInstance;
+    private bool isAnimating = false;
 
-    public void Awake()
+    private void Awake()
     {
-        // Initialize buttonStatus with default values (0 for closed)
         for (int i = 0; i < buttons.Count; i++)
         {
-            buttonStatus.Add(0); // default status: all buttons are closed
+            buttonStates.Add(0);
         }
     }
-
 
     public void ToggleMenu(GameObject clickedButton)
     {
-        int clickedIndex = buttons.IndexOf(clickedButton);
-
-        if (buttonStatus[clickedIndex] == 1) // If button is open, close it
+        if (!isAnimating)
         {
-            CloseMenu(clickedIndex);
-        }
-        else // If button is closed, open it
-        {
-            OpenMenu(clickedIndex);
+            StartCoroutine(HandleToggle(clickedButton));
         }
     }
 
+    private IEnumerator HandleToggle(GameObject clickedButton)
+    {
+        int index = buttons.IndexOf(clickedButton);
+        if (index == -1) yield break;
 
-    public void CloseMenu(int clickedIndex){
+        if (buttonStates[index] == 1)
+        {
+            CloseMenu(index);
+            yield break;
+        }
 
+        isAnimating = true;
+
+        // Close other open menus
+        for (int i = 0; i < buttons.Count; i++)
+        {
+            if (i != index && buttonStates[i] == 1)
+            {
+                CloseMenu(i);
+            }
+        }
+
+        // Wait for animations to finish
+        yield return new WaitForSeconds(animationDuration);
+
+        OpenMenu(index);
+        isAnimating = false;
     }
-    public void OpenMenu(int clickedIndex){
-        buttonStatus[clickedIndex] = 1;
 
-        GameObject currentPanelInstance = Instantiate(sliderPanelPrefab, buttons[clickedIndex].transform.parent);
-        RectTransform panelRect = currentPanelInstance.GetComponent<RectTransform>();
+    private void CloseMenu(int index)
+    {
+        buttonStates[index] = 0;
+
+        // Shift buttons back up
+        for (int i = index + 1; i < buttons.Count; i++)
+        {
+            RectTransform rect = buttons[i].GetComponent<RectTransform>();
+            Vector2 targetPos = rect.anchoredPosition + new Vector2(0, dropdownHeight);
+            StartCoroutine(ShiftButton(rect, targetPos));
+        }
+
+        if (currentPanelInstance != null)
+        {
+            Destroy(currentPanelInstance);
+            currentPanelInstance = null;
+        }
     }
-    // private GameObject currentPanelInstance;
-    // private RectTransform panelRect;
-    // private bool isMenuOpen = false;
-    // private int activeButtonIndex = -1;
 
-    // public void ToggleMenu(GameObject clickedButton)
-    // {
-    //     int clickedIndex = buttons.IndexOf(clickedButton);
+    private void OpenMenu(int index)
+    {
+        buttonStates[index] = 1;
 
-    //     if (isMenuOpen && clickedIndex == activeButtonIndex)
-    //     {
-    //         CloseMenu(clickedIndex);
-    //         return;
-    //     }
+        GameObject panel = Instantiate(sliderPanelPrefab, buttons[index].transform.parent);
+        currentPanelInstance = panel;
 
-    //     if (isMenuOpen)
-    //     {
-    //         CloseMenu(activeButtonIndex);
-    //     }
+        RectTransform panelRect = panel.GetComponent<RectTransform>();
+        RectTransform buttonRect = buttons[index].GetComponent<RectTransform>();
 
-    //     OpenMenu(clickedIndex, clickedButton);
-    // }
+        Vector3 buttonWorldPos = buttons[index].transform.position;
+        float buttonHeight = buttonRect.sizeDelta.y * buttons[index].transform.lossyScale.y;
+        Vector3 panelWorldPos = new(buttonWorldPos.x, buttonWorldPos.y - buttonHeight, buttonWorldPos.z);
 
-    // private void OpenMenu(int index, GameObject clickedButton)
-    // {
-    //     isMenuOpen = true;
-    //     activeButtonIndex = index;
+        panel.transform.position = panelWorldPos;
+        panel.transform.SetSiblingIndex(buttons[index].transform.GetSiblingIndex());
+        panelRect.sizeDelta = new Vector2(buttonRect.sizeDelta.x, 0);
 
-    //     // Instantiate dropdown panel
-    //     currentPanelInstance = Instantiate(sliderPanelPrefab, clickedButton.transform.parent); // same parent as buttons
-    //     panelRect = currentPanelInstance.GetComponent<RectTransform>();
+        StartCoroutine(ExpandPanel(panelRect, dropdownHeight));
 
-    //     RectTransform buttonRect = clickedButton.GetComponent<RectTransform>();
+        for (int i = index + 1; i < buttons.Count; i++)
+        {
+            RectTransform rect = buttons[i].GetComponent<RectTransform>();
+            Vector2 targetPos = rect.anchoredPosition - new Vector2(0, dropdownHeight);
+            StartCoroutine(ShiftButton(rect, targetPos));
+        }
+    }
 
-    //     // Position panel directly under the button
-    //     Vector2 buttonPos = buttonRect.anchoredPosition;
-    //     float buttonHeight = buttonRect.sizeDelta.y;
+    private IEnumerator ExpandPanel(RectTransform panel, float targetHeight)
+    {
+        float elapsed = 0f;
+        float startHeight = 0f;
 
-    //     panelRect.anchoredPosition = new Vector2(buttonPos.x, buttonPos.y - buttonHeight);
-    //     panelRect.sizeDelta = new Vector2(buttonRect.sizeDelta.x, 0); // start at height 0
+        while (elapsed < animationDuration)
+        {
+            float newHeight = Mathf.Lerp(startHeight, targetHeight, elapsed / animationDuration);
+            panel.sizeDelta = new Vector2(panel.sizeDelta.x, newHeight);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
 
-    //     StartCoroutine(ExpandPanel(panelRect, dropdownHeight));
+        panel.sizeDelta = new Vector2(panel.sizeDelta.x, targetHeight);
+    }
 
-    //     // Shift buttons below
-    //     for (int i = index + 1; i < buttons.Count; i++)
-    //     {
-    //         RectTransform rect = buttons[i].GetComponent<RectTransform>();
-    //         Vector2 newPos = rect.anchoredPosition + new Vector2(0, -dropdownHeight);
-    //         StartCoroutine(ShiftButton(rect, newPos));
-    //     }
-    // }
+    private IEnumerator ShiftButton(RectTransform rect, Vector2 targetPos)
+    {
+        Vector2 startPos = rect.anchoredPosition;
+        float elapsed = 0f;
 
-    // private void CloseMenu(int index)
-    // {
-    //     isMenuOpen = false;
+        while (elapsed < animationDuration)
+        {
+            rect.anchoredPosition = Vector2.Lerp(startPos, targetPos, elapsed / animationDuration);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
 
-    //     // Shift buttons back up
-    //     for (int i = index + 1; i < buttons.Count; i++)
-    //     {
-    //         RectTransform rect = buttons[i].GetComponent<RectTransform>();
-    //         Vector2 newPos = rect.anchoredPosition + new Vector2(0, dropdownHeight);
-    //         StartCoroutine(ShiftButton(rect, newPos));
-    //     }
-
-    //     if (currentPanelInstance != null)
-    //     {
-    //         Destroy(currentPanelInstance);
-    //     }
-
-    //     activeButtonIndex = -1;
-    // }
-
-    // private IEnumerator ExpandPanel(RectTransform panel, float targetHeight)
-    // {
-    //     float elapsed = 0f;
-    //     float startHeight = 0f;
-
-    //     while (elapsed < animationDuration)
-    //     {
-    //         float newHeight = Mathf.Lerp(startHeight, targetHeight, elapsed / animationDuration);
-    //         panel.sizeDelta = new Vector2(panel.sizeDelta.x, newHeight);
-    //         elapsed += Time.deltaTime;
-    //         yield return null;
-    //     }
-
-    //     panel.sizeDelta = new Vector2(panel.sizeDelta.x, targetHeight);
-    // }
-
-    // private IEnumerator ShiftButton(RectTransform rect, Vector2 targetPos)
-    // {
-    //     Vector2 startPos = rect.anchoredPosition;
-    //     float elapsed = 0;
-
-    //     while (elapsed < animationDuration)
-    //     {
-    //         rect.anchoredPosition = Vector2.Lerp(startPos, targetPos, elapsed / animationDuration);
-    //         elapsed += Time.deltaTime;
-    //         yield return null;
-    //     }
-
-    //     rect.anchoredPosition = targetPos;
-    // }
+        rect.anchoredPosition = targetPos;
+    }
 }

@@ -1201,9 +1201,9 @@ MonoBehaviour:
   - {fileID: 1663595384}
   - {fileID: 1367784261}
   - {fileID: 280457284}
-  sliderPanelPrefab: {fileID: 0}
+  sliderPanelPrefab: {fileID: 3056256784287548562, guid: ce0a5fc2549904e80b79ce4dd27cd980, type: 3}
   dropdownHeight: 400
-  animationDuration: 0.3
+  animationRate: 0.3
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

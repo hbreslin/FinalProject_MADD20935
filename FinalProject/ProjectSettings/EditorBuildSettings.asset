@@ -26,7 +26,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/FinalProject/scenes/playScreen.unity
     guid: c88e508b3a14642e2aa4d18dac87a6e7
-  - enabled: 1
+  - enabled: 0
     path: Assets/FinalProject/scenes/addHouse.unity
     guid: ce78f86948f894ac8bf758cf1f0aeba5
   m_configObjects:
