@@ -1115,6 +1115,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 11500000, guid: 9de056c4264a3428d9155e852925c3d9, type: 3}
+        m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1663595387
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1163,6 +1175,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2114251905}
   - component: {fileID: 2114251906}
+  - component: {fileID: 2114251907}
   m_Layer: 0
   m_Name: ButtonManager
   m_TagString: Untagged
@@ -1203,7 +1216,23 @@ MonoBehaviour:
   - {fileID: 280457284}
   sliderPanelPrefab: {fileID: 3056256784287548562, guid: ce0a5fc2549904e80b79ce4dd27cd980, type: 3}
   dropdownHeight: 400
-  animationRate: 0.3
+  animationDuration: 0.3
+--- !u!114 &2114251907
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2114251904}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c60c00e206d342b1a29eb5189616297, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Buttons:
+  - {fileID: 1663595384}
+  Prefabs:
+  - {fileID: 8988028622132993922, guid: 025e69e30cc064d218e0b9c3419339b9, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
