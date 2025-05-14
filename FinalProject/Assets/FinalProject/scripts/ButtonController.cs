@@ -7,7 +7,8 @@ public class ButtonController : MonoBehaviour
     [SerializeField] private List<GameObject> Buttons = new List<GameObject>();
     [SerializeField] private List<GameObject> Prefabs = new List<GameObject>();
     
-
+    
+    
     private PlaceObject placeObject;
 
     void Start()
@@ -30,7 +31,7 @@ public class ButtonController : MonoBehaviour
                 int index = i; // capture for closure
                 Button btn = Buttons[index].GetComponent<Button>();
 
-                if (btn != null)
+                if (btn != null )
                 {
                     btn.onClick.AddListener(() => placeObject.setPrefab(Prefabs[index]));
                 }
