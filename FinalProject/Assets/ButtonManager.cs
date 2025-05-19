@@ -8,12 +8,16 @@ public class ButtonManager : MonoBehaviour
     [Header("UI Elements")]
     [SerializeField] private List<GameObject> buttons = new(); // Top-down ordered buttons
     [SerializeField] private GameObject sliderPanelPrefab;
+    [SerializeField] private List<GameObject> Prefabs = new List<GameObject>();
 
     [Header("Settings")]
     [SerializeField] private float dropdownHeight = 300f;
     [SerializeField] private float animationDuration = 0.3f;
 
-    private List<int> buttonStates = new(); // 0 = closed, 1 = open
+    // [SerializeField] private List<GameObject> Buttons = new List<GameObject>();
+    // [SerializeField] private List<GameObject> Prefabs = new List<GameObject>();
+
+    public List<int> buttonStates = new(); // 0 = closed, 1 = open
     private GameObject currentPanelInstance;
     private bool isAnimating = false;
 
