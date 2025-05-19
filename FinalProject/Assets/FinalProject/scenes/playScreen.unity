@@ -1886,7 +1886,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buttonManagerObject: {fileID: 2114251904}
   selectedPrefab: {fileID: 0}
-  spawnHeight: 0.15
+  spawnHeight: 0
   tooManyFairiesMessage: {fileID: 1749732875}
   sadFairiesMessage: {fileID: 1684237752}
   messageDuration: 2.5
@@ -2065,6 +2065,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 864598581}
   m_CullTransparentMesh: 1
+--- !u!1 &876212441
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 876212443}
+  - component: {fileID: 876212442}
+  m_Layer: 0
+  m_Name: SaveManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &876212442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 876212441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1eb8162094644baa82dfae386022f92, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  activeFairies: []
+--- !u!4 &876212443
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 876212441}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 532, y: 411.2, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &898338710
 GameObject:
   m_ObjectHideFlags: 0
@@ -5242,3 +5287,4 @@ SceneRoots:
   - {fileID: 2114251905}
   - {fileID: 1010310047}
   - {fileID: 1620170655}
+  - {fileID: 876212443}
