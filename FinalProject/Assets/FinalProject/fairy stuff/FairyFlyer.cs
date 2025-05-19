@@ -18,8 +18,8 @@ public class FairyFlyer : MonoBehaviour
     public float leafSpawnForwardOff = 0.3f;
 
     // House interaction variables
-    public float houseDetectRange = 1.5f;
-    public float approachDistance = 0.5f;
+    public float houseDetectRange = .5f;
+    public float approachDistance = 0.1f;
     public float pauseAtHouseDuration = 1f;
     public float minReappearDelay = 1f;
     public float maxReappearDelay = 2.5f;

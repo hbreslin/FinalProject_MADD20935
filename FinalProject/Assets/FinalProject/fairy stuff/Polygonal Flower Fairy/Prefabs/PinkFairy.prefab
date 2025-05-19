@@ -1061,12 +1061,12 @@ MonoBehaviour:
   maxPauseDuration: 2
   turnSpeed: 85
   boundaryRadius: 8
-  leafPrefab: {fileID: 1280488001133914510, guid: f781743c0c5794ae7bd0609bb22e22ce, type: 3}
+  leafPrefab: {fileID: 1280488001133914510, guid: 230160c82e4be4aaab50834e4354df7d, type: 3}
   leafSpawnInterval: 0.5
   leafSpawnOffset: 0.1
-  leafSpawnForwardOff: 0.3
-  houseDetectRange: 1.5
-  approachDistance: 0.5
+  leafSpawnForwardOff: 0.1
+  houseDetectRange: 0.4
+  approachDistance: 0.2
   pauseAtHouseDuration: 1
   minReappearDelay: 1
   maxReappearDelay: 2.5
@@ -1094,8 +1094,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Radius: 0.23
+  m_Center: {x: 0, y: 1.2, z: 0.03770282}
 --- !u!1 &1755227469980476
 GameObject:
   m_ObjectHideFlags: 0

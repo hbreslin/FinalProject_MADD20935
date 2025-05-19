@@ -131,7 +131,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 136fa11b54b2146ba8aab92d4fce1c1a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetScale: {x: 0.5, y: 0.5, z: 0.5}
+  targetScale: {x: 0.3, y: 0.3, z: 0.3}
   growDuration: 5
 --- !u!65 &5504514316130837938
 BoxCollider:
@@ -152,5 +152,5 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.60028076, y: 0.4000835, z: 0.28084755}
+  m_Center: {x: -0.11550903, y: 0.2137249, z: 0.016646385}

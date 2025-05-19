@@ -30,6 +30,10 @@ public class SaveManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
+#if UNITY_EDITOR
+            ClearSavedData();
+#endif
         }
         else
         {
@@ -99,11 +103,36 @@ public class SaveManager : MonoBehaviour
         Debug.Log($"[SaveManager] Loaded {dataList.objects.Count} objects.");
     }
 
+    public void ClearSavedData()
+    {
+        if (PlayerPrefs.HasKey("SavedSceneObjects"))
+        {
+            PlayerPrefs.DeleteKey("SavedSceneObjects");
+            PlayerPrefs.Save();
+            Debug.Log("[SaveManager] Cleared all saved data.");
+        }
+        else
+        {
+            Debug.Log("[SaveManager] No saved data to clear.");
+        }
+
+        // Optionally destroy currently loaded saved objects in the scene
+        foreach (string tag in tagsToSave)
+        {
+            GameObject[] existing = GameObject.FindGameObjectsWithTag(tag);
+            foreach (var obj in existing)
+            {
+                Destroy(obj);
+            }
+        }
+    }
+
     void OnApplicationQuit()
     {
         SaveObjects();
     }
 
+    // Uncomment this if you want to save when app is paused (e.g. iOS background)
     // void OnApplicationPause(bool pause)
     // {
     //     if (pause) SaveObjects();
