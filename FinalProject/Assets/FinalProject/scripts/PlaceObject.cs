@@ -1,11 +1,10 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
 using EnhancedTouch = UnityEngine.InputSystem.EnhancedTouch;
-using System;
 
 [RequireComponent(typeof(ARRaycastManager), typeof(ARPlaneManager), typeof(ARAnchorManager))]
 public class PlaceObject : MonoBehaviour
@@ -13,17 +12,25 @@ public class PlaceObject : MonoBehaviour
     [SerializeField] private GameObject buttonManagerObject;
     private NewButtonManager buttonManager;
 
-    [SerializeField] private string enabledScene;
     [SerializeField] private GameObject selectedPrefab;
     [SerializeField] private float spawnHeight = 0.15f;
+
+    [Header("Message Objects")]
+    [SerializeField] private GameObject tooManyFairiesMessage;
+    [SerializeField] private GameObject sadFairiesMessage;
+    [SerializeField] private float messageDuration = 2.5f;
 
     private ARRaycastManager raycastManager;
     private ARPlaneManager planeManager;
     private ARAnchorManager anchorManager;
-    private bool placementEnabled = false;
 
     private static List<ARRaycastHit> hits = new List<ARRaycastHit>();
+    private bool placementEnabled = false;
     private bool isTouching = false;
+
+    private int houseCount = 0;
+    private int fairyCount = 0;
+    private int decorCount = 0;
 
     private void Awake()
     {
@@ -58,6 +65,12 @@ public class PlaceObject : MonoBehaviour
     public void enablePlacement(GameObject GO)
     {
         selectedPrefab = GO;
+        StartCoroutine(EnablePlacementWithDelay(0.5f));
+    }
+
+    private IEnumerator EnablePlacementWithDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
         placementEnabled = true;
     }
 
@@ -77,11 +90,9 @@ public class PlaceObject : MonoBehaviour
 
     private void Update()
     {
-        // Show or hide all tracked AR planes
         foreach (var plane in planeManager.trackables)
         {
             plane.gameObject.SetActive(placementEnabled);
-            Debug.Log("placementEnabled");
         }
 
         if (!placementEnabled || EnhancedTouch.Touch.activeTouches.Count == 0)
@@ -94,12 +105,26 @@ public class PlaceObject : MonoBehaviour
             Pose hitPose = hits[0].pose;
             ARPlane plane = planeManager.GetPlane(hits[0].trackableId);
             ARAnchor anchor = anchorManager.AttachAnchor(plane, hitPose);
-
             Vector3 spawnPos = hitPose.position + Vector3.up * spawnHeight;
+
+            // Check for fairy placement limit
+            // Check for fairy placement limit
+            if (selectedPrefab.CompareTag("Fairy") && fairyCount >= 2 * houseCount)
+            {
+                ShowMessage(tooManyFairiesMessage);
+                buttonManager.setAlternateView(0); // Reset buttons
+                placementEnabled = false;
+                return;
+            }
+
+
             GameObject placedObject = Instantiate(selectedPrefab, spawnPos, hitPose.rotation, anchor.transform);
 
+            // Count objects based on tag
             if (selectedPrefab.CompareTag("Fairy"))
             {
+                fairyCount++;
+
                 var rb = placedObject.GetComponent<Rigidbody>();
                 if (rb != null) rb.useGravity = false;
 
@@ -107,16 +132,42 @@ public class PlaceObject : MonoBehaviour
                 if (flyer == null)
                     flyer = placedObject.AddComponent<FairyFlyer>();
             }
+            else if (selectedPrefab.CompareTag("House"))
+            {
+                houseCount++;
+            }
+            else if (selectedPrefab.CompareTag("Decor"))
+            {
+                decorCount++;
+            }
 
-            Debug.Log($"Placed object at: {spawnPos}");
+            // Show sad fairies message if there's not enough decor
+            if (houseCount > 0 && decorCount < houseCount / 2)
+            {
+                ShowMessage(sadFairiesMessage);
+                buttonManager.setAlternateView(0); // Reset buttons
+            }
+
+
             placementEnabled = false;
             buttonManager.setAlternateView(0);
         }
     }
 
-    /// <summary>
-    /// Checks if the given screen position is over a UI element
-    /// </summary>
+    private void ShowMessage(GameObject messageObject)
+    {
+        if (messageObject == null) return;
+
+        StartCoroutine(ShowMessageCoroutine(messageObject));
+    }
+
+    private IEnumerator ShowMessageCoroutine(GameObject message)
+    {
+        message.SetActive(true);
+        yield return new WaitForSeconds(messageDuration);
+        message.SetActive(false);
+    }
+
     private bool IsPointerOverUI(Vector2 screenPosition)
     {
         PointerEventData eventData = new PointerEventData(EventSystem.current)

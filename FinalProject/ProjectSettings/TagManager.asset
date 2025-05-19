@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 3
   tags:
   - XROrigin
+  - House
+  - Fairy
+  - Decor
   layers:
   - Default
   - TransparentFX
