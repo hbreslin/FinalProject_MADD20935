@@ -39,8 +39,22 @@ public class NewButtonManager : MonoBehaviour
             closeButton.SetActive(false);
             return;
         }
+        // placement mode, no other buttons visible
+        else if (viewtype == 4)
+        {
+            foreach (var button in closedButtons)
+            {
+                button.SetActive(false);
+            }
+            foreach (var altView in alternateViews)
+            {
+                altView.SetActive(false);
+            }
+            closeButton.SetActive(false);
+            return;
+        }
         // 1 = house, 2 = fairy, 3 = decor
-        alternateViews[viewtype-1].SetActive(true);
+        alternateViews[viewtype - 1].SetActive(true);
         Debug.Log("setting active " + viewtype);
         closeButton.SetActive(true);
         // Set the initial states to inactive
@@ -48,5 +62,6 @@ public class NewButtonManager : MonoBehaviour
         {
             button.SetActive(false);
         }
+        
     }
 }

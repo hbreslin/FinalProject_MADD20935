@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 7ddf264686425c341909baa11130493a
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 160606
+  packageName: Polygonal Flower Fairy
+  packageVersion: 1.0
+  assetPath: Assets/Polygonal Flower Fairy/Animators/Flower Fairy.controller
+  uploadId: 346072

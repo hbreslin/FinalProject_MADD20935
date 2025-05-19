@@ -20,7 +20,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/sketch3.unity
     guid: 6a653035f969846b1b9a3ca2842939f3
-  - enabled: 1
+  - enabled: 0
     path: Assets/FinalProject/scenes/startScreen.unity
     guid: 06e60f33f3a3342aeade768aae2ec4f2
   - enabled: 1

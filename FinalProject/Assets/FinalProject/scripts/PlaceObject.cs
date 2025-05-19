@@ -7,31 +7,30 @@ using UnityEngine.SceneManagement;
 using EnhancedTouch = UnityEngine.InputSystem.EnhancedTouch;
 using System;
 
-
-[RequireComponent(typeof(ARRaycastManager), typeof(ARPlaneManager))]
-
+[RequireComponent(typeof(ARRaycastManager), typeof(ARPlaneManager), typeof(ARAnchorManager))]
 public class PlaceObject : MonoBehaviour
 {
-    // [SerializeField]
-    // private List<GameObject> prefabs; // List of prefabs to choose from
-    [SerializeField]
-    private string enabledScene;
-    [SerializeField]
-    private GameObject selectedPrefab;
-    private ARRaycastManager aRRaycastManager;
-    private ARPlaneManager aRPlaneManager;
-    private List<ARRaycastHit> hits = new List<ARRaycastHit>();
-    private List<GameObject> placedObjects = new List<GameObject>(); // Track placed objects
+    [SerializeField] private GameObject buttonManagerObject;
+    private NewButtonManager buttonManager;
 
+    [SerializeField] private string enabledScene;
+    [SerializeField] private GameObject selectedPrefab;
+    [SerializeField] private float spawnHeight = 0.15f;
 
+    private ARRaycastManager raycastManager;
+    private ARPlaneManager planeManager;
+    private ARAnchorManager anchorManager;
+    private bool placementEnabled = false;
+
+    private static List<ARRaycastHit> hits = new List<ARRaycastHit>();
     private bool isTouching = false;
-    private float placementInterval = 0.2f;
-    private float lastPlacementTime = 0f;
 
     private void Awake()
     {
-        aRPlaneManager = GetComponent<ARPlaneManager>();
-        aRRaycastManager = GetComponent<ARRaycastManager>();
+        buttonManager = buttonManagerObject.GetComponent<NewButtonManager>();
+        raycastManager = GetComponent<ARRaycastManager>();
+        planeManager = GetComponent<ARPlaneManager>();
+        anchorManager = GetComponent<ARAnchorManager>();
     }
 
     private void OnEnable()
@@ -42,11 +41,6 @@ public class PlaceObject : MonoBehaviour
         EnhancedTouch.Touch.onFingerUp += OnFingerUp;
     }
 
-    public void setPrefab(GameObject GO){
-        selectedPrefab = GO;
-        Debug.Log("Selected prefab set to: " + GO.name);
-    }
-
     private void OnDisable()
     {
         EnhancedTouch.TouchSimulation.Disable();
@@ -55,12 +49,21 @@ public class PlaceObject : MonoBehaviour
         EnhancedTouch.Touch.onFingerUp -= OnFingerUp;
     }
 
+    public void setPrefab(GameObject GO)
+    {
+        selectedPrefab = GO;
+        Debug.Log("Selected prefab set to: " + GO.name);
+    }
+
+    public void enablePlacement(GameObject GO)
+    {
+        selectedPrefab = GO;
+        placementEnabled = true;
+    }
+
     private void OnFingerDown(EnhancedTouch.Finger finger)
     {
-        if (finger.index != 0)
-            return;
-
-        if (IsPointerOverUI(finger.currentTouch.screenPosition))
+        if (finger.index != 0 || IsPointerOverUI(finger.currentTouch.screenPosition))
             return;
 
         isTouching = true;
@@ -74,59 +77,40 @@ public class PlaceObject : MonoBehaviour
 
     private void Update()
     {
-        Scene currentScene = SceneManager.GetActiveScene();
-        bool shouldShowPlanes = currentScene.name == enabledScene && selectedPrefab!=null;
-
-        // Show/hide all tracked AR planes
-        foreach (var plane in aRPlaneManager.trackables)
+        // Show or hide all tracked AR planes
+        foreach (var plane in planeManager.trackables)
         {
-            plane.gameObject.SetActive(shouldShowPlanes);
+            plane.gameObject.SetActive(placementEnabled);
+            Debug.Log("placementEnabled");
         }
 
-        if (!shouldShowPlanes || !isTouching)
-            return;
-
-        if (Time.time - lastPlacementTime < placementInterval)
-            return;
-
-        if (EnhancedTouch.Touch.activeTouches.Count == 0)
+        if (!placementEnabled || EnhancedTouch.Touch.activeTouches.Count == 0)
             return;
 
         Vector2 touchPosition = EnhancedTouch.Touch.activeTouches[0].screenPosition;
 
-        if (aRRaycastManager.Raycast(touchPosition, hits, TrackableType.PlaneWithinPolygon) && selectedPrefab!=null)
+        if (raycastManager.Raycast(touchPosition, hits, TrackableType.PlaneWithinPolygon))
         {
-            Pose pose = hits[0].pose;
-            Vector3 position = pose.position;
+            Pose hitPose = hits[0].pose;
+            ARPlane plane = planeManager.GetPlane(hits[0].trackableId);
+            ARAnchor anchor = anchorManager.AttachAnchor(plane, hitPose);
 
-            // Apply a small vertical offset to avoid overlapping
-            position.y += 0.1f;
+            Vector3 spawnPos = hitPose.position + Vector3.up * spawnHeight;
+            GameObject placedObject = Instantiate(selectedPrefab, spawnPos, hitPose.rotation, anchor.transform);
 
-            // Choose a random prefab from the list
-            // GameObject selectedPrefab = prefabs[UnityEngine.Random.Range(0, prefabs.Count)];
-            GameObject obj = Instantiate(selectedPrefab, position, pose.rotation);
-            DontDestroyOnLoad(obj); // Make object persist between scenes
-            placedObjects.Add(obj); // Track the object
-            lastPlacementTime = Time.time;
+            if (selectedPrefab.CompareTag("Fairy"))
+            {
+                var rb = placedObject.GetComponent<Rigidbody>();
+                if (rb != null) rb.useGravity = false;
 
-            Debug.Log($"Placed object at: {position}");
-            
+                FairyFlyer flyer = placedObject.GetComponent<FairyFlyer>();
+                if (flyer == null)
+                    flyer = placedObject.AddComponent<FairyFlyer>();
+            }
 
-            // Add small horizontal offset to avoid exact overlap
-            // Vector3 offset = new Vector3(0.1f * UnityEngine.Random.Range(1, 3), 0, 0);
-            // obj.transform.position += offset;
-
-            // // Rotate to face the camera
-            // var plane = aRPlaneManager.GetPlane(hits[0].trackableId);
-            // if (plane.alignment == PlaneAlignment.HorizontalUp)
-            // {
-            //     Vector3 cameraPosition = Camera.main.transform.position;
-            //     cameraPosition.y = 0f;
-
-            //     Vector3 direction = cameraPosition - position;
-            //     obj.transform.rotation = Quaternion.LookRotation(direction);
-            // }
-            selectedPrefab = null;
+            Debug.Log($"Placed object at: {spawnPos}");
+            placementEnabled = false;
+            buttonManager.setAlternateView(0);
         }
     }
 
@@ -144,6 +128,4 @@ public class PlaceObject : MonoBehaviour
         EventSystem.current.RaycastAll(eventData, results);
         return results.Count > 0;
     }
-
-    // Optional: Clear all placed objects
 }
